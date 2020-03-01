@@ -1,0 +1,158 @@
+addi $25, $0, 2  
+addi $3, $0, 200
+addi $4, $0, 0x2020
+addi $5, $0, 0x2420 
+
+addi $6, $0, 0 #x
+addi $7, $0, 0 #y 
+addi $8, $0, 0 #limit 100
+addi $9, $0, 1 #step
+addi $10,$0, 0 #k
+addi $11,$0, 0 #Counter
+addi $12,$0, 0
+
+main:
+beq $3, $0, end
+beq $11, $0, right  
+bne $11, $0, left 
+
+right:
+addi $6, $6, 1
+sw   $6, 0($4)
+sw   $7, 0($5)
+addi $4, $4, 4
+addi $5, $5, 4 
+addi $8, $8, 1
+beq  $3, $8, end
+addi $10,$10, 1
+bne  $9, $10,right  
+or   $10, $0, $0 
+
+up:
+addi $7, $7, 1
+sw   $6, 0($4)
+sw   $7, 0($5)
+addi $4, $4, 4
+addi $5, $5, 4 
+addi $8, $8, 1
+beq  $3, $8, end
+addi $10,$10, 1
+bne  $9,$10, up   
+or   $10, $0, $0 
+beq  $0, $0, step 
+
+left:
+addi $6, $6, -1
+sw   $6, 0($4)
+sw   $7, 0($5)
+addi $4, $4, 4
+addi $5, $5, 4 
+addi $8, $8, 1
+beq  $3, $8, end
+addi $10,$10, 1
+bne  $9,$10, left   
+or   $10, $0, $0 
+
+down:
+addi $7, $7, -1
+sw   $6, 0($4)  
+sw   $7, 0($5)
+addi $4, $4, 4
+addi $5, $5, 4 
+addi $8, $8, 1
+beq  $3, $8, end
+addi $10,$10, 1
+bne  $9,$10, down   
+or   $10, $0, $0 
+beq  $0, $0, step 
+
+step:
+addi $9, $9, 1
+addi $11,$11,1
+div  $11, $25
+mfhi $11
+bne  $3, $8,main
+
+end:
+
+#part B
+addi $1, $0,  2 #A
+addi $2, $0,  13 #B
+addi $13,$0, 0x2820 #C
+addi $4, $0, 0x2020 #A
+addi $5, $0, 0x2420 #B
+addi $20, $0, 1 #Count
+main2:
+lw   $6, 0($4) #X[i]
+lw   $7, 0($5) #Y[i]
+mul  $18, $1, $6
+mflo $14
+mul  $19, $2, $7
+mflo $15
+add  $16,$14,$15
+slt  $17,$16,$0
+bne  $17,$0,skip #Start of check of C[i] result
+addi $17,$0,1
+sw   $17,0($13) #store inti C[i]
+addi $13,$13,4
+addi $4, $4, 4
+addi $5, $5, 4
+addi $20, $20, 1 
+beq  $20, $3, end2
+beq  $0, $0, main2
+skip:
+addi $17,$0,-1
+sw   $17,0($13)
+addi $13,$13,4
+addi $4, $4, 4
+addi $5, $5, 4
+addi $20, $20, 1 
+beq  $20, $3, end2
+beq  $0, $0, main2
+end2:
+
+#Part C
+addi $13,$0, 0x2820 #C
+addi $4, $0, 0x2020 #A
+addi $5, $0, 0x2420 #B
+addi $20, $0, 1 #Count
+addi $23, $0, 1 #a
+addi $6, $0, 1 #b
+addi $21, $0, 1
+addi $22, $0, -1 
+main3:
+lw  $7, 0($4) #X[i]
+lw  $8, 0($5) #Y[i]
+lw  $9, 0($13) #C[i]
+
+mul $10, $23, $7
+mul $11, $8, $6 
+add $12, $10, $11
+slt $14, $12, $0
+slt $15, $9, $0
+beq $14, $15, update
+beq $14, $21, update_pos
+beq $14, $0, update_neg
+
+update:
+addi $20, $20, 1
+addi $4, $4, 4
+addi $5, $5, 4
+addi $13, $13, 4
+beq  $20, $3, end3
+beq  $0, $0, main3
+
+
+update_pos:
+add  $23,$23,$7
+add  $6,$6,$8
+beq  $0, $0, update
+
+update_neg:
+sub  $23,$23,$7
+sub  $6,$6,$8
+beq  $0, $0, update
+
+end3:
+sw $23, 0x2000($0)
+sw $6, 0x2004($0)
